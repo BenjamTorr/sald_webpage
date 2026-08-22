@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SALD | Short-to-Long Functional Connectivity Transfer</title>
+    <meta
+      name="description"
+      content="Project page for Short-to-Long Functional Connectivity Transfer via Structure-Aware Latent Diffusion."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Page navigation">
+        <a class="brand" href="#top" aria-label="SALD project page">SALD</a>
+        <div class="nav-links">
+          <a href="#abstract">Abstract</a>
+          <a href="#method">Method</a>
+          <a href="#results">Results</a>
+          <a href="#citation">Citation</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Structure-Aware Latent Diffusion</p>
+          <h1>Short-to-Long Functional Connectivity Transfer via Structure-Aware Latent Diffusion</h1>
+          <p class="summary">
+            SALD synthesizes long-scan-like functional connectivity from short resting-state fMRI
+            observations by combining short-scan FC, structural connectivity, subject covariates,
+            and phenotype-aware LoRA steering.
+          </p>
+
+          <div class="authors" aria-label="Authors">
+            <a href="mailto:ibta@unc.edu">Benjamin Torres</a>
+            <a href="mailto:yufliu@umich.edu">Yufeng Liu</a>
+            <a href="mailto:zhengwu_zhang@unc.edu">Zhengwu Zhang</a>
+          </div>
+
+          <p class="affiliations">
+            University of North Carolina at Chapel Hill &middot; University of Michigan
+          </p>
+
+          <div class="actions" aria-label="Paper links">
+            <a class="button primary" href="assets/SALD_main.pdf">Paper PDF</a>
+            <a class="button" href="assets/SALD_supp.pdf">Supplement</a>
+            <a class="button" href="https://github.com/BenjamTorr/SALD">Code</a>
+          </div>
+        </div>
+
+        <figure class="hero-figure">
+          <img
+            src="assets/sald_method_pipeline.png"
+            alt="Overview of the SALD pipeline from short FC and structural connectivity to long-scan-like generated FC with phenotype steering."
+          >
+          <figcaption>
+            SALD first learns a structure-aware latent diffusion model, then steers generation with
+            a frozen phenotype reward model while keeping the base model anchored.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section compact">
+        <div class="metrics-grid" aria-label="Study highlights">
+          <div class="metric">
+            <span>11,156</span>
+            <p>ABCD scans processed with the SBCI pipeline and Schaefer 100-parcel atlas.</p>
+          </div>
+          <div class="metric">
+            <span>1-10 min</span>
+            <p>Short-scan input windows transferred toward a 20-minute FC reference.</p>
+          </div>
+          <div class="metric">
+            <span>3 axes</span>
+            <p>Evaluation spans reconstruction fidelity, phenotype utility, and identifiability.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="abstract" class="section text-section">
+        <div class="section-heading">
+          <p class="eyebrow">Paper</p>
+          <h2>Abstract</h2>
+        </div>
+        <p>
+          Resting-state functional connectivity (FC) is widely used to model brain organization
+          and predict phenotypes, yet short fMRI acquisitions often yield unreliable estimates.
+          We propose a Structure-Aware Latent Diffusion framework, SALD, to synthesize
+          long-scan-like FC from limited observations. Our model conditions the generation process
+          on short-scan FC, structural connectivity (SC) as a lightweight anatomical prior, and
+          subject-level covariates. Crucially, in the Adolescent Brain Cognitive Development Study
+          (ABCD) cohort, our results suggest a fidelity-utility tension in FC synthesis:
+          likelihood-based diffusion training may improve distributional fidelity while
+          attenuating subtle inter-subject variation relevant to phenotype prediction.
+        </p>
+        <p>
+          To address this, we introduce a reward-guided Low-Rank Adaptation (LoRA) strategy that
+          distills a guidance signal isolating the FC-congruent portion of phenotype variance,
+          steering generation toward preserving this signal while maintaining sample realism.
+          Experiments on the ABCD cohort show that our method better preserves
+          phenotype-relevant signal in short-to-long FC synthesis, with the most pronounced
+          improvements over short-scan baselines occurring in the low-scan-time regime across the
+          evaluated phenotypes. These findings suggest a promising direction for
+          phenotype-aware short-to-long FC synthesis.
+        </p>
+      </section>
+
+      <section id="method" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Approach</p>
+          <h2>Method Overview</h2>
+        </div>
+
+        <div class="method-grid">
+          <article>
+            <h3>Conditional latent diffusion</h3>
+            <p>
+              A shared VAE maps short- and long-duration FC into one latent manifold. A DiT
+              denoiser then learns the distribution of long-scan FC latents conditioned on the
+              short-scan latent, flattened SC, and covariate embeddings.
+            </p>
+          </article>
+          <article>
+            <h3>Structure and covariate conditioning</h3>
+            <p>
+              Structural connectivity acts as a soft anatomical prior, while age and sex are
+              embedded as subject-level context. AdaLN-Zero modulation lets these inputs influence
+              each transformer block during denoising.
+            </p>
+          </article>
+          <article>
+            <h3>Phenotype-aware steering</h3>
+            <p>
+              LoRA adapters are fine-tuned through the final DDIM denoising steps. A frozen
+              phenotype predictor rewards generated FC that preserves explainable
+              phenotype-discriminative structure, while one-step anchoring limits drift.
+            </p>
+          </article>
+        </div>
+
+        <div class="figure-pair">
+          <figure>
+            <img
+              src="assets/paper_figure-000.png"
+              alt="SALD sampling steering diagram showing DDIM sampling, LoRA updates, frozen reward predictor, and steering loss."
+            >
+            <figcaption>
+              Sampling steering: gradients pass through the final DDIM denoising steps while only
+              LoRA parameters are updated.
+            </figcaption>
+          </figure>
+          <figure>
+            <img
+              src="assets/paper_figure-002.png"
+              alt="Diffusion Transformer denoising architecture with latent tokens, auxiliary conditioning, and AdaLN-Zero blocks."
+            >
+            <figcaption>
+              DiT denoising architecture with short-FC tokens, SC and covariate conditioning, and
+              AdaLN-Zero modulation.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="results" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Experiments</p>
+          <h2>Results</h2>
+        </div>
+
+        <div class="results-grid">
+          <figure>
+            <img
+              src="assets/paper_figure-004.png"
+              alt="Reconstruction fidelity plots comparing Frobenius distance and correlation to 20-minute FC across scan durations."
+            >
+            <figcaption>
+              Reconstruction fidelity to 20-minute FC. SALD gives the strongest overall agreement
+              among the generative baselines and improves over Conditional DDPM.
+            </figcaption>
+          </figure>
+
+          <figure>
+            <img
+              src="assets/paper_figure-006.png"
+              alt="Phenotype prediction plots comparing MSE, correlation, and recovered predictive variance across scan durations."
+            >
+            <figcaption>
+              NIH Toolbox cognition prediction. SALD recovers more long-scan predictive variance,
+              especially in the shortest scan regimes.
+            </figcaption>
+          </figure>
+
+          <figure>
+            <img
+              src="assets/paper_figure-008.png"
+              alt="Phenotype utility plots for UPPS, CBCL, and SDS showing recovered predictive variance and correlations."
+            >
+            <figcaption>
+              Generalization to additional phenotypes. SALD generally exceeds Conditional DDPM on
+              recovered predictive variance and remains competitive in correlation.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section text-section">
+        <div class="section-heading">
+          <p class="eyebrow">Takeaways</p>
+          <h2>Key Contributions</h2>
+        </div>
+        <ul class="contribution-list">
+          <li>
+            Shows that likelihood-based conditional diffusion can improve FC distributional
+            fidelity while under-recovering phenotype-relevant subject-level variation.
+          </li>
+          <li>
+            Introduces SALD, a structure-conditioned latent diffusion framework for
+            short-to-long functional connectivity transfer.
+          </li>
+          <li>
+            Adds phenotype-reward adaptation with LoRA, distillation, and one-step anchoring to
+            preserve useful inter-subject signal while maintaining sample realism.
+          </li>
+        </ul>
+      </section>
+
+      <section class="section text-section">
+        <div class="section-heading">
+          <p class="eyebrow">Scope</p>
+          <h2>Clinical Perspective</h2>
+        </div>
+        <p>
+          SALD is aimed at population-level research rather than individual clinical decisions. The
+          paper evaluates reconstruction fidelity, phenotype utility, and differential
+          identifiability in one ABCD processing configuration. Prospective external validation,
+          uncertainty calibration, robustness across acquisition settings, and clinical safeguards
+          would be required before any diagnostic use.
+        </p>
+      </section>
+
+      <section id="citation" class="section citation-section">
+        <div class="section-heading">
+          <p class="eyebrow">Reference</p>
+          <h2>Citation</h2>
+        </div>
+        <pre><code>@misc{torres2026sald,
+  title = {Short-to-Long Functional Connectivity Transfer via Structure-Aware Latent Diffusion},
+  author = {Torres, Benjamin and Liu, Yufeng and Zhang, Zhengwu},
+  year = {2026}
+}</code></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Short-to-Long Functional Connectivity Transfer via Structure-Aware Latent Diffusion.
+        <a href="assets/SALD_main.pdf">Read the paper</a>.
+      </p>
+    </footer>
+  </body>
+</html>
