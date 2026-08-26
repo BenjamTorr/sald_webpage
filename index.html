@@ -53,12 +53,12 @@
 
         <figure class="hero-figure">
           <img
-            src="assets/sald_method_pipeline.png"
-            alt="Overview of the SALD pipeline from short FC and structural connectivity to long-scan-like generated FC with phenotype steering."
+            src="assets/overall_structure.png"
+            alt="Overall SALD structure with inputs and latent encoding, base diffusion training, and SALD D sampling steering."
           >
           <figcaption>
-            SALD first learns a structure-aware latent diffusion model, then steers generation with
-            a frozen phenotype reward model while keeping the base model anchored.
+            Overall SALD structure: encode short- and long-scan FC into a shared latent space,
+            train the base diffusion model, then apply phenotype-aware sampling steering.
           </figcaption>
         </figure>
       </section>
@@ -141,28 +141,16 @@
           </article>
         </div>
 
-        <div class="figure-pair">
-          <figure>
-            <img
-              src="assets/paper_figure-000.png"
-              alt="SALD sampling steering diagram showing DDIM sampling, LoRA updates, frozen reward predictor, and steering loss."
-            >
-            <figcaption>
-              Sampling steering: gradients pass through the final DDIM denoising steps while only
-              LoRA parameters are updated.
-            </figcaption>
-          </figure>
-          <figure>
-            <img
-              src="assets/paper_figure-002.png"
-              alt="Diffusion Transformer denoising architecture with latent tokens, auxiliary conditioning, and AdaLN-Zero blocks."
-            >
-            <figcaption>
-              DiT denoising architecture with short-FC tokens, SC and covariate conditioning, and
-              AdaLN-Zero modulation.
-            </figcaption>
-          </figure>
-        </div>
+        <figure class="structure-figure">
+          <img
+            src="assets/overall_structure.png"
+            alt="Overall SALD structure with inputs and latent encoding, base diffusion training, and phenotype-aware DDIM sampling steering."
+          >
+          <figcaption>
+            Overall structure of SALD: inputs and latent encoding, single-timestep base diffusion
+            training, and phenotype-aware DDIM sampling steering.
+          </figcaption>
+        </figure>
       </section>
 
       <section id="results" class="section">

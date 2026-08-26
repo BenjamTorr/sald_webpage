@@ -219,7 +219,7 @@ figcaption {
 }
 
 .hero-figure img,
-.figure-pair img,
+.structure-figure img,
 .results-grid img {
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -302,12 +302,13 @@ figcaption {
   color: var(--muted);
 }
 
-.figure-pair {
+.structure-figure {
   margin-top: 28px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.34fr) minmax(0, 0.96fr);
-  gap: 22px;
-  align-items: start;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(23, 34, 51, 0.06);
 }
 
 .results-grid {
@@ -369,8 +370,7 @@ figcaption {
   }
 
   .metrics-grid,
-  .method-grid,
-  .figure-pair {
+  .method-grid {
     grid-template-columns: 1fr;
   }
 }
